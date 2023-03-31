@@ -11,7 +11,7 @@ spec:
     targetRevision: HEAD
     path: helm/vprofilecharts
   destination: 
-    server: https://kubernetes.default.svc
+    server: https://api.k8.learnwithabhi.xyz
     namespace: prod
 
   syncPolicy:
