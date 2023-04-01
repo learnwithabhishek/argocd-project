@@ -3,22 +3,33 @@
 #Install awscli and configure it with IAM user of admin access.
 
 sudo apt update 
+
 sudo apt install awscli -y
-aws configure # After that enter your user's access key id and secret access key
+
+aws configure            # (After that enter your user's access key id and secret access key)
 
 #Install kubectl
+
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+
 sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
 
 #Install kops
+
 curl -LO https://github.com/kubernetes/kops/releases/download/$(curl -s https://api.github.com/repos/kubernetes/kops/releases/latest | grep tag_name | cut -d '"' -f 4)/kops-linux-amd64
+
 chmod +x kops-linux-amd64
+
 sudo mv kops-linux-amd64 /usr/local/bin/kops
 
 #kops uses DNS for discovery, both inside the cluster and outside, so that you can reach the kubernetes API server from clients.
+
 #Purchge a domain (ex. godaddy.com) then created a public hosted zone in aws Route53.
+
 #In Godaddy created NS records for subdomain pointing to Route53 hosted zone NS servers.
+
 #Created a S3 bucket to store the cluster's state.
+
 #After completing all prerequisites create cluster using kops command
  
 kops create cluster --name=k8.learnwithabhi.xyz --state=s3://mykopsbucketfork8 --zones=us-east-1a --node-count=1 --node-size=t3.small --master-size=t3.medium --dns-zone=k8.learnwithabhi.xyz --node-volume-size=8 --master-volume-size=8
@@ -28,20 +39,27 @@ kops update cluster --name k8.learnwithabhi.xyz --state=s3://mykopsbucketfork8 -
 kops validate cluster --state=s3://mykopsbucketfork8
 
 # Install Argocd
+
 kubectl create namespace argocd
+
 kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # Download & install Argocd Cli
+
 curl -sSL -o argocd-linux-amd64 https://github.com/argoproj/argo-cd/releases/latest/download/argocd-linux-amd64
+
 sudo install -m 555 argocd-linux-amd64 /usr/local/bin/argocd
+
 rm argocd-linux-amd64
 
 #To access argocd api-server change the argocd-server service type to LoadBalancer
+
 kubectl patch svc argocd-server -n argocd -p '{"spec": {"type": "LoadBalancer"}}'
 
 ![argocd-loadbalancer](https://user-images.githubusercontent.com/110404399/229288652-4a797c07-1af7-4355-9be3-b7115c840db4.jpg)
 
 #To login copy loadbalancer address and paste in browser. username is admin, to get initial password run below command:
+
 argocd admin initial-password -n argocd
 
 ![argocd-login-page](https://user-images.githubusercontent.com/110404399/229288267-f9053e9e-53d6-43fd-b525-495c4d87ce38.jpg)
@@ -51,18 +69,21 @@ argocd admin initial-password -n argocd
 ![argocd-password-change](https://user-images.githubusercontent.com/110404399/229288339-bd90278f-a16e-43d7-bdef-06aaea54ab0d.jpg)
 
 #Clone this git repo & create application using application.yaml file
+
 git clone https://github.com/learnwithabhishek/argocd-project.git
+
 kubectl apply -f application.yaml
 
 ![argocd-browser-application-successful](https://user-images.githubusercontent.com/110404399/229289006-8197b4f0-0314-4e4a-9e1a-f49a5ca58e21.jpg)
 
-#We can check details of deployments, replicaset, pods ets by clicking on the application.
+#We can check details of deployments, replicaset, pods etc by clicking on the application.
 
 ![argocd-browser-details1](https://user-images.githubusercontent.com/110404399/229289116-82807ed6-c427-4e85-a702-f0299b4367ad.jpg)
 
 ![argocd-browser-details2](https://user-images.githubusercontent.com/110404399/229289130-ecced62a-5033-448e-acd9-15c641e2a30f.jpg)
 
 #To get details about prod cluster enter below command:
+
 kubectl get all -n prod
 
 ![k8cluster-after-deploy](https://user-images.githubusercontent.com/110404399/229289257-63bd763a-a613-4e8e-8d47-657d51314e17.jpg)
@@ -92,4 +113,5 @@ kubectl get all -n prod
 ![rmq-tested](https://user-images.githubusercontent.com/110404399/229290031-07e579a5-a5b9-4194-bae4-4452fc1bb471.jpg)
 
 #After completing the project delete the application and then delete kubernetes cluster on aws
+
 kops delete cluster --name k8.learnwithabhi.xyz --state=s3://mykopsbucketfork8 --yes
