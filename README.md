@@ -1,5 +1,9 @@
 # argocd-project
 
+![Jenkins-Argocd-Pileline2](https://user-images.githubusercontent.com/110404399/229304623-41f24827-1894-4b00-a847-95c0cee69a67.jpg)
+
+Docker image of vpro-app is built from cicd-Jenkins-Docker project and the latest image is used here to deploy on kubernetes cluster with Argocd. Argocd will maintain the state of deployment on kubernetes cluster and will use this repo as a single source of truth.
+
 #Install awscli and configure it with IAM user of admin access.
 
 sudo apt update 
